@@ -177,6 +177,14 @@ def collect(
 
         def copy_many(files: Iterable[Path], dest_dir: Path):
             for src in files:
+                if not src.exists():
+                    if verbose:
+                        print(f"Skip (missing): {src}")
+                    continue
+                if not src.is_file():
+                    if verbose:
+                        print(f"Skip (not a file): {src}")
+                    continue
                 dst_name = build_dest_name(pbip_base, src)
                 dst_path = dest_dir / dst_name
                 dst_path = next_available_path(dst_path)
@@ -216,4 +224,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
