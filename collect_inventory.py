@@ -55,10 +55,20 @@ def find_first_pbip(project_dir: Path) -> Optional[Path]:
     fallback = sorted(project_dir.rglob("*.pbip"))
     return fallback[0] if fallback else None
 
+WINDOWS_FORBIDDEN = set('<>:"/\\|?*')  # Reserved characters on Windows paths
+
 def sanitize_pbip_base(stem: str) -> str:
-    # Strip trailing punctuation like '.' or '_' and normalize spaces to underscores
-    cleaned = stem.strip().rstrip("._- ").replace(" ", "_")
-    return cleaned or stem
+    """Return a file-name-safe base derived from the PBIP stem."""
+    cleaned_chars = []
+    for ch in stem.strip():
+        if ch in WINDOWS_FORBIDDEN or ord(ch) < 32:
+            cleaned_chars.append('_')
+        elif ch.isspace():
+            cleaned_chars.append('_')
+        else:
+            cleaned_chars.append(ch)
+    cleaned = ''.join(cleaned_chars).rstrip('._-')
+    return cleaned or 'pbip'
 
 def ensure_dir(p: Path) -> None:
     p.mkdir(parents=True, exist_ok=True)
@@ -206,3 +216,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
